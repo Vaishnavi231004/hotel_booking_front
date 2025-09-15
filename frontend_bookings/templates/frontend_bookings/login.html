@@ -1,15 +1,22 @@
 {% extends 'frontend_bookings/base.html' %}
 
 {% block content %}
-<h1>Login</h1>
+<h2>Traveler Login</h2>
+
 <form method="POST">
     {% csrf_token %}
-    <label>Username: <input type="text" name="username" required></label><br><br>
-    <label>Password: <input type="password" name="password" required></label><br><br>
+    <label>Username:</label><br>
+    <input type="text" name="username" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br><br>
+
     <button type="submit">Login</button>
 </form>
 
 {% if message %}
-<p>{{ message }}</p>
+    <p>{{ message }}</p>
 {% endif %}
+
+<p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
 {% endblock %}

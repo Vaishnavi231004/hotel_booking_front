@@ -1,19 +1,23 @@
-{% extends 'frontend_bookings/base.html' %}
+from django.contrib.auth.decorators import login_required
 
-{% block content %}
-<h1>Book Room {{ room.id }}</h1>
-<p>Hotel: {{ room.hotel.name }}</p>
-<p>Type: {{ room.room_type }}</p>
-<p>Price per Night: ₹{{ room.price_per_night }}</p>
+@login_required
+def booking_form(request, room_id):
+    message = ''
+    if request.method == 'POST':
+        if request.user.role != 'traveler':
+            message = "Only travelers can book."
+        else:
+            data = {
+                "room": room_id,
+                "traveler": request.user.id,  
+                "check_in": request.POST.get('check_in'),
+                "check_out": request.POST.get('check_out')
+            }
+            res = requests.post(f"{API_BASE}bookings/", json=data,
+                                cookies=request.COOKIES)  # pass session cookies
+            message = "Booking successful!" if res.status_code in [200, 201] else "Booking failed."
 
-<form method="POST">
-    {% csrf_token %}
-    <label>Check-in Date: <input type="date" name="check_in" required></label><br><br>
-    <label>Check-out Date: <input type="date" name="check_out" required></label><br><br>
-    <button type="submit">Book Now</button>
-</form>
+    room_res = requests.get(f"{API_BASE}rooms/{room_id}/")
+    room = room_res.json() if room_res.status_code == 200 else {}
 
-{% if message %}
-<p>{{ message }}</p>
-{% endif %}
-{% endblock %}
+    return render(request, 'frontend_bookings/booking_form.html', {'room': room, 'message': message})

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'frontend_bookings',
 ]
 
+AUTH_USER_MODEL = 'bookings.User'  # DRF User model app_label.ModelName
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -77,9 +78,10 @@ WSGI_APPLICATION = 'hotel_booking_front.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': r'C:\Users\mohite\OneDrive\Desktop\preparation\hotel_booking\db.sqlite3',
     }
 }
+
 
 
 # Password validation
