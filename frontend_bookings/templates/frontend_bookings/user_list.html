@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+</head>
+<body>
+    <h1>Users from DRF API</h1>
+    <ul>
+        {% for user in users %}
+            <li>
+                {{ user.username }} - {{ user.email }} ({{ user.role }})
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

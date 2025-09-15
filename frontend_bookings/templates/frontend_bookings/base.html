@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hotel Booking</title>
+    <link rel="stylesheet" href="{% static 'frontend_bookings/css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">New User</a>
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

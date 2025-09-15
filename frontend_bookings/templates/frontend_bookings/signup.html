@@ -1,0 +1,16 @@
+{% extends 'frontend_bookings/base.html' %}
+
+{% block content %}
+<h1>Signup</h1>
+<form method="POST">
+    {% csrf_token %}
+    <label>Username: <input type="text" name="username" required></label><br><br>
+    <label>Email: <input type="email" name="email" required></label><br><br>
+    <label>Password: <input type="password" name="password" required></label><br><br>
+    <button type="submit">Signup</button>
+</form>
+
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
+{% endblock %}

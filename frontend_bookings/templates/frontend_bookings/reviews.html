@@ -1,0 +1,23 @@
+{% extends 'frontend_bookings/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Reviews for {{ hotel.name }}</h1>
+
+{% if reviews %}
+    <ul>
+        {% for review in reviews %}
+            <li>
+                <strong>{{ review.traveler.username }}</strong> 
+                rated <strong>{{ review.rating }}/5</strong>
+                <p>{{ review.comment }}</p>
+                <small>On {{ review.created_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No reviews available for this hotel yet.</p>
+{% endif %}
+
+<a href="{% url 'hotel_detail' hotel.id %}">Back to Hotel Details</a>
+{% endblock %}

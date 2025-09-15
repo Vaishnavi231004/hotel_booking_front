@@ -1,0 +1,19 @@
+{% extends 'frontend_bookings/base.html' %}
+
+{% block content %}
+<h1>Book Room {{ room.id }}</h1>
+<p>Hotel: {{ room.hotel.name }}</p>
+<p>Type: {{ room.room_type }}</p>
+<p>Price per Night: ₹{{ room.price_per_night }}</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <label>Check-in Date: <input type="date" name="check_in" required></label><br><br>
+    <label>Check-out Date: <input type="date" name="check_out" required></label><br><br>
+    <button type="submit">Book Now</button>
+</form>
+
+{% if message %}
+<p>{{ message }}</p>
+{% endif %}
+{% endblock %}

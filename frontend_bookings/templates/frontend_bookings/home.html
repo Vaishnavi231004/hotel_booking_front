@@ -1,0 +1,16 @@
+{% extends 'frontend_bookings/base.html' %}
+{% block content %}
+<h1>Available Hotels</h1>
+<ul>
+    {% for hotel in hotels %}
+        <li>
+            <h2><a href="{% url 'hotel_detail' hotel.id %}">{{ hotel.name }}</a></h2>
+            <p>{{ hotel.description }}</p>
+            <p>Location: {{ hotel.location }}</p>
+            <p>Rating:{{ hotel.rating }}</p>
+        </li>
+    {% empty %}
+        <li>No hotels found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

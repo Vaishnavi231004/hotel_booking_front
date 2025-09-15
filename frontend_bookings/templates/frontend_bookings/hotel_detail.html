@@ -1,0 +1,37 @@
+{% extends 'frontend_bookings/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>{{ hotel.name }}</h1>
+<p>{{ hotel.description }}</p>
+<p>Location: {{ hotel.location }}</p>
+
+<h2>Rooms</h2>
+<ul>
+    {% for room in rooms %}
+        <li>
+            Room {{ room.id }} - {{ room.room_type }} - ${{ room.price_per_night }}
+            <a href="{% url 'booking_form' room.id %}">Book Now</a>
+        </li>
+    {% empty %}
+        <li>No rooms available.</li>
+    {% endfor %}
+</ul>
+
+<h2>Reviews</h2>
+{% if reviews %}
+    <ul>
+        {% for review in reviews|slice:":3" %} {# Show only first 3 reviews #}
+            <li>
+                <strong>{{ review.traveler.username }}</strong> 
+                rated <strong>{{ review.rating }}/5</strong>
+                <p>{{ review.comment }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'reviews' hotel.id %}">View All Reviews</a>
+{% else %}
+    <p>No reviews yet.</p>
+{% endif %}
+
+{% endblock %}
