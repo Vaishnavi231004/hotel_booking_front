@@ -1,21 +1,15 @@
 from django.shortcuts import render, redirect
 import requests
 
-
-
-from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
-
-from django.contrib.auth import logout as auth_logout
-
 API_BASE = "http://127.0.0.1:8000/api/"  # DRF backend
+
 
 # Home page - list hotels
 def home(request):
     res = requests.get(f"{API_BASE}hotels/")
     hotels = res.json() if res.status_code == 200 else []
     return render(request, 'frontend_bookings/home.html', {'hotels': hotels})
+
 
 # Hotel detail & rooms
 def hotel_detail(request, hotel_id):
@@ -29,17 +23,18 @@ def hotel_detail(request, hotel_id):
         'hotel': hotel, 'rooms': rooms, 'reviews': reviews
     })
 
-from django.contrib.auth.decorators import login_required
 
+# Booking form - traveler must be logged in
 def booking_form(request, room_id):
     message = ''
+    user_id = request.session.get("user_id")
     if request.method == 'POST':
-        if request.user.is_staff:
-            message = "Admins cannot book rooms."
+        if not user_id:
+            message = "You must be logged in as traveler to book."
         else:
             data = {
                 "room": room_id,
-                "traveler": request.user.id,  # logged-in traveler
+                "traveler": user_id,
                 "check_in": request.POST.get('check_in'),
                 "check_out": request.POST.get('check_out')
             }
@@ -52,6 +47,7 @@ def booking_form(request, room_id):
     return render(request, 'frontend_bookings/booking_form.html', {'room': room, 'message': message})
 
 
+# Traveler signup
 def signup(request):
     message = ''
     if request.method == 'POST':
@@ -67,27 +63,35 @@ def signup(request):
             message = "Signup failed. Try a different username/email."
     return render(request, 'frontend_bookings/signup.html', {'message': message})
 
-from django.contrib.auth import authenticate, login as auth_login
 
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
 
 def login(request):
     message = ''
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        # Authenticate against DRF User model
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            auth_login(request, user)  # login sets request.user
-            return redirect('home')    # redirect to homepage
+        data = {
+            "username": request.POST.get('username'),
+            "password": request.POST.get('password')
+        }
+        res = requests.post(f"{API_BASE}login/", json=data)  # <-- DRF login endpoint
+        if res.status_code == 200:
+            user = res.json()
+            # store session info
+            request.session['user_id'] = user['id']
+            request.session['username'] = user['username']
+            request.session['role'] = user['role']
+            return redirect('home')
         else:
             message = "Invalid credentials."
 
     return render(request, 'frontend_bookings/login.html', {'message': message})
 
+
+def logout(request):
+    request.session.flush()  
+    return redirect('home')
+
+
+# Reviews
 def reviews(request, hotel_id):
     hotel_res = requests.get(f"{API_BASE}hotels/{hotel_id}/")
     reviews_res = requests.get(f"{API_BASE}reviews/?hotel={hotel_id}")
@@ -95,13 +99,7 @@ def reviews(request, hotel_id):
     hotel = hotel_res.json() if hotel_res.status_code == 200 else {}
     reviews = reviews_res.json() if reviews_res.status_code == 200 else []
 
-    return render(request, 'frontend/reviews.html', {
+    return render(request, 'frontend_bookings/reviews.html', {
         'hotel': hotel,
         'reviews': reviews
     })
-
-
-
-def logout(request):
-    auth_logout(request)
-    return redirect('home')

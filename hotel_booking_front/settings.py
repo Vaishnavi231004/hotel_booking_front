@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'frontend_bookings',
 ]
 
-AUTH_USER_MODEL = 'bookings.User'  # DRF User model app_label.ModelName
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

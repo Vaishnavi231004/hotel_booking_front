@@ -1,16 +1,40 @@
 {% extends 'frontend_bookings/base.html' %}
+
 {% block content %}
-<h1>Available Hotels</h1>
-<ul>
-    {% for hotel in hotels %}
-        <li>
-            <h2><a href="{% url 'hotel_detail' hotel.id %}">{{ hotel.name }}</a></h2>
-            <p>{{ hotel.description }}</p>
-            <p>Location: {{ hotel.location }}</p>
-            <p>Rating:{{ hotel.rating }}</p>
-        </li>
-    {% empty %}
-        <li>No hotels found.</li>
-    {% endfor %}
-</ul>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Available Hotels</h1>
+
+    <div class="row">
+        {% for hotel in hotels %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-lg border-0 h-100">
+                    <!-- You can add a default image if hotel model doesn't have one -->
+                    <img src="https://source.unsplash.com/400x250/?hotel,travel" 
+                         class="card-img-top" alt="{{ hotel.name }}">
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">
+                            <a href="{% url 'hotel_detail' hotel.id %}" class="text-decoration-none text-dark">
+                                {{ hotel.name }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted">{{ hotel.description|truncatewords:20 }}</p>
+                        <p><strong>📍 Location:</strong> {{ hotel.location }}</p>
+                        <p><strong>⭐ Rating:</strong> {{ hotel.rating }}</p>
+                        
+                        <div class="mt-auto">
+                            <a href="{% url 'hotel_detail' hotel.id %}" class="btn btn-primary w-100">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No hotels found.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
