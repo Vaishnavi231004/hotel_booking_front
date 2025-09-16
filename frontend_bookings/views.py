@@ -24,22 +24,28 @@ def hotel_detail(request, hotel_id):
     })
 
 
-# Booking form - traveler must be logged in
+# Booking form
 def booking_form(request, room_id):
     message = ''
-    user_id = request.session.get("user_id")
+    token = request.session.get("token")  # get token from session
+
     if request.method == 'POST':
-        if not user_id:
+        if not token:
             message = "You must be logged in as traveler to book."
         else:
             data = {
                 "room": room_id,
-                "traveler": user_id,
                 "check_in": request.POST.get('check_in'),
                 "check_out": request.POST.get('check_out')
             }
-            res = requests.post(f"{API_BASE}bookings/", json=data)
-            message = "Booking successful!" if res.status_code in [200, 201] else "Booking failed."
+            headers = {"Authorization": f"Token {token}"}
+            res = requests.post(f"{API_BASE}bookings/", json=data, headers=headers)
+            print("Booking API Response:", res.status_code, res.text)
+
+            if res.status_code in [200, 201]:
+                message = "Booking successful!"
+            else:
+                message = f"Booking failed: {res.text}"
 
     room_res = requests.get(f"{API_BASE}rooms/{room_id}/")
     room = room_res.json() if room_res.status_code == 200 else {}
@@ -47,7 +53,7 @@ def booking_form(request, room_id):
     return render(request, 'frontend_bookings/booking_form.html', {'room': room, 'message': message})
 
 
-# Traveler signup
+# Signup
 def signup(request):
     message = ''
     if request.method == 'POST':
@@ -64,30 +70,36 @@ def signup(request):
     return render(request, 'frontend_bookings/signup.html', {'message': message})
 
 
-
+# Login
 def login(request):
     message = ''
     if request.method == 'POST':
-        data = {
-            "username": request.POST.get('username'),
-            "password": request.POST.get('password')
-        }
-        res = requests.post(f"{API_BASE}login/", json=data)  # <-- DRF login endpoint
-        if res.status_code == 200:
-            user = res.json()
-            # store session info
-            request.session['user_id'] = user['id']
-            request.session['username'] = user['username']
-            request.session['role'] = user['role']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        res = requests.post(f"{API_BASE}login/", json={
+            "username": username,
+            "password": password
+        })
+
+        response_data = res.json()
+        if res.status_code == 200 and 'token' in response_data:
+            # Save session info
+            request.session['user_id'] = response_data.get('id')
+            request.session['username'] = response_data.get('username')
+            request.session['role'] = response_data.get('role')
+            request.session['token'] = response_data.get('token')
             return redirect('home')
         else:
-            message = "Invalid credentials."
+            # Show error from DRF or generic
+            message = response_data.get('error', "Invalid credentials.")
 
     return render(request, 'frontend_bookings/login.html', {'message': message})
 
 
+# Logout
 def logout(request):
-    request.session.flush()  
+    request.session.flush()
     return redirect('home')
 
 

@@ -8,10 +8,13 @@
         {% for hotel in hotels %}
             <div class="col-md-4 mb-4">
                 <div class="card shadow-lg border-0 h-100">
-                    <!-- You can add a default image if hotel model doesn't have one -->
-                    <img src="https://source.unsplash.com/400x250/?hotel,travel" 
-                         class="card-img-top" alt="{{ hotel.name }}">
-                    
+                
+                    {% if hotel.image %}
+                        <img src="http://127.0.0.1:8000{{ hotel.image }}" alt="{{ hotel.name }}">
+                    {% else %}
+                         <img src="https://source.unsplash.com/400x250/?hotel,travel" alt="{{ hotel.name }}">
+                    {% endif %}
+
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">
                             <a href="{% url 'hotel_detail' hotel.id %}" class="text-decoration-none text-dark">
