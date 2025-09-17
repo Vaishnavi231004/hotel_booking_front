@@ -26,10 +26,12 @@ def hotel_detail(request, hotel_id):
     })
 
 
-# Booking form
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def booking_form(request, room_id):
     message = ''
-    token = request.session.get("token")  # get token from session
+    token = request.session.get("token")  # DRF token in session
 
     if request.method == 'POST':
         if not token:
@@ -52,7 +54,9 @@ def booking_form(request, room_id):
     room_res = requests.get(f"{API_BASE}rooms/{room_id}/")
     room = room_res.json() if room_res.status_code == 200 else {}
 
-    return render(request, 'frontend_bookings/booking_form.html', {'room': room, 'message': message})
+    return render(request, 'frontend_bookings/booking_form.html', {
+        'room': room, 'message': message
+    })
 
 
 # Signup
@@ -161,7 +165,7 @@ def edit_review(request, review_id):
 
     review = res.json()
 
-    if review["traveler"] != request.session.get("user_id"):
+    if review["traveler"] != request.session.get("username"):
         messages.error(request, "You can only edit your own reviews.")
         return redirect("hotel_detail", hotel_id=review["hotel"])
 
@@ -170,7 +174,7 @@ def edit_review(request, review_id):
         if form.is_valid():
             data = {
                 "hotel": review["hotel"],
-                "traveler": request.session.get("user_id"),
+                "traveler": request.session.get("username"),
                 "rating": form.cleaned_data["rating"],
                 "comment": form.cleaned_data["comment"],
             }

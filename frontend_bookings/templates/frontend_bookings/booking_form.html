@@ -1,31 +1,41 @@
 {% extends 'frontend_bookings/base.html' %}
 
 {% block content %}
-<h1>Book Room {{ room.id }}</h1>
-<p>Hotel: {{ room.hotel.name }}</p>
-<p>Type: {{ room.room_type }}</p>
-<p>Price per Night: ₹{{ room.price_per_night }}</p>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h2 class="mb-3">Book Room </h2>
+            <p><strong>Hotel:</strong> {{ room.hotel.name }}</p>
+            <p><strong>Type:</strong> {{ room.room_type }}</p>
+            <p><strong>Price per Night:</strong> ₹{{ room.price_per_night }}</p>
 
-{% if user.is_staff %}
-    <!-- Admin should not see booking form -->
-    <p style="color: red;">Admins cannot book rooms.</p>
-{% else %}
-    <!-- Traveler sees booking form -->
-    <form method="POST">
-        {% csrf_token %}
-        <label>Check-in Date: 
-            <input type="date" name="check_in" required>
-        </label><br><br>
+            {% if user.is_staff %}
+                <div class="alert alert-danger">
+                    Admins cannot book rooms.
+                </div>
+            {% else %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="check_in" class="form-label">Check-in Date</label>
+                        <input type="date" class="form-control" id="check_in" name="check_in" required>
+                    </div>
 
-        <label>Check-out Date: 
-            <input type="date" name="check_out" required>
-        </label><br><br>
+                    <div class="mb-3">
+                        <label for="check_out" class="form-label">Check-out Date</label>
+                        <input type="date" class="form-control" id="check_out" name="check_out" required>
+                    </div>
 
-        <button type="submit">Book Now</button>
-    </form>
-{% endif %}
+                    <button type="submit" class="btn btn-warning w-100">Book Now</button>
+                </form>
+            {% endif %}
 
-{% if message %}
-    <p style="color: green;">{{ message }}</p>
-{% endif %}
+            {% if message %}
+                <div class="alert alert-success mt-3">
+                    {{ message }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}
