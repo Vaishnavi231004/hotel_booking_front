@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 import requests
+from .forms import ReviewForm
+from django.contrib import messages
 
 API_BASE = "http://127.0.0.1:8000/api/"  # DRF backend
 
@@ -115,3 +117,95 @@ def reviews(request, hotel_id):
         'hotel': hotel,
         'reviews': reviews
     })
+
+
+
+def add_review(request, hotel_id):
+    token = request.session.get("token")
+    if not token:
+        messages.error(request, "You must be logged in to add a review.")
+        return redirect("login")
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            data = {
+                "hotel": hotel_id,
+                "traveler": request.session.get("user_id"),
+                "rating": form.cleaned_data["rating"],
+                "comment": form.cleaned_data["comment"],
+            }
+            headers = {"Authorization": f"Token {token}"}
+            res = requests.post(f"{API_BASE}reviews/", json=data, headers=headers)
+
+            if res.status_code == 201:
+                messages.success(request, "Review added successfully!")
+                return redirect("hotel_detail", hotel_id=hotel_id)
+            else:
+                messages.error(request, f"Failed to add review: {res.text}")
+    else:
+        form = ReviewForm()
+
+    return render(request, "frontend_bookings/review_form.html", {"form": form, "action": "Add"})
+
+
+
+def edit_review(request, review_id):
+    token = request.session.get("token")
+    headers = {"Authorization": f"Token {token}"} if token else {}
+    res = requests.get(f"{API_BASE}reviews/{review_id}/", headers=headers)
+
+    if res.status_code != 200:
+        messages.error(request, "Review not found.")
+        return redirect("home")
+
+    review = res.json()
+
+    if review["traveler"] != request.session.get("user_id"):
+        messages.error(request, "You can only edit your own reviews.")
+        return redirect("hotel_detail", hotel_id=review["hotel"])
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            data = {
+                "hotel": review["hotel"],
+                "traveler": request.session.get("user_id"),
+                "rating": form.cleaned_data["rating"],
+                "comment": form.cleaned_data["comment"],
+            }
+            update_res = requests.put(f"{API_BASE}reviews/{review_id}/", json=data, headers=headers)
+            if update_res.status_code == 200:
+                messages.success(request, "Review updated successfully!")
+                return redirect("hotel_detail", hotel_id=review["hotel"])
+            else:
+                messages.error(request, f"Failed to update review: {update_res.text}")
+    else:
+        form = ReviewForm(initial={"rating": review["rating"], "comment": review["comment"]})
+
+    return render(request, "frontend_bookings/review_form.html", {"form": form, "action": "Edit"})
+
+
+
+def delete_review(request, review_id):
+    token = request.session.get("token")
+    headers = {"Authorization": f"Token {token}"} if token else {}
+    res = requests.get(f"{API_BASE}reviews/{review_id}/", headers=headers)
+
+    if res.status_code != 200:
+        messages.error(request, "Review not found.")
+        return redirect("home")
+
+    review = res.json()
+
+    if review["traveler"] != request.session.get("user_id"):
+        messages.error(request, "You can only delete your own reviews.")
+        return redirect("hotel_detail", hotel_id=review["hotel"])
+
+    delete_res = requests.delete(f"{API_BASE}reviews/{review_id}/", headers=headers)
+    if delete_res.status_code == 204:
+        messages.success(request, "Review deleted successfully!")
+    else:
+        messages.error(request, f"Failed to delete review: {delete_res.text}")
+
+    return redirect("hotel_detail", hotel_id=review["hotel"])

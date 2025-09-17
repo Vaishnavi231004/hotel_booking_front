@@ -21,17 +21,29 @@
 <h2>Reviews</h2>
 {% if reviews %}
     <ul>
-        {% for review in reviews|slice:":3" %} {# Show only first 3 reviews #}
+        {% for review in reviews|slice:":3" %}
             <li>
                 <strong>{{ review.traveler.username }}</strong> 
                 rated <strong>{{ review.rating }}/5</strong>
                 <p>{{ review.comment }}</p>
+                <small>On {{ review.created_at }}</small>
             </li>
         {% endfor %}
     </ul>
     <a href="{% url 'reviews' hotel.id %}">View All Reviews</a>
+
+    {% if request.session.username %}
+        | <a href="{% url 'reviews' hotel.id %}#add-review">Write a Review</a>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to write a review.</p>
+    {% endif %}
 {% else %}
     <p>No reviews yet.</p>
+    {% if request.session.username %}
+        <a href="{% url 'reviews' hotel.id %}#add-review">Be the first to review</a>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to write a review.</p>
+    {% endif %}
 {% endif %}
 
 {% endblock %}

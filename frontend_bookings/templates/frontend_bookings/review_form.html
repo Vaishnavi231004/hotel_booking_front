@@ -1,0 +1,25 @@
+{% extends 'frontend_bookings/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ action }} Review</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="rating">Rating (1-5)</label>
+            <input type="number" name="rating" min="1" max="5" class="form-control"
+                   value="{{ form.rating.value|default_if_none:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="comment">Comment</label>
+            <textarea name="comment" class="form-control" rows="3" required>{{ form.comment.value|default_if_none:'' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">{{ action }}</button>
+        <a href="{% url 'reviews' request.resolver_match.kwargs.hotel_id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
