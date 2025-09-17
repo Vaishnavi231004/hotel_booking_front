@@ -19,7 +19,7 @@
         </div>
 
         <button type="submit" class="btn btn-success">{{ action }}</button>
-        <a href="{% url 'reviews' request.resolver_match.kwargs.hotel_id %}" class="btn btn-secondary">Cancel</a>
+        <a href="{% url 'reviews' hotel_id %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 {% endblock %}
