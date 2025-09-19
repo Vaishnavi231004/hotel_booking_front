@@ -97,7 +97,7 @@ def login(request):
             request.session['token'] = response_data.get('token')
             return redirect('home')
         else:
-            # Show error from DRF or generic
+            # Show error from DRF 
             message = response_data.get('error', "Invalid credentials.")
 
     return render(request, 'frontend_bookings/login.html', {'message': message})

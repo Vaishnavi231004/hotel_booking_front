@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Application definition
 
@@ -74,12 +75,7 @@ WSGI_APPLICATION = 'hotel_booking_front.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': r'C:\Users\mohite\OneDrive\Desktop\preparation\hotel_booking\db.sqlite3',
-    }
-}
+DATABASES = {}
 
 
 
